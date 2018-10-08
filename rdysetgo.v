@@ -1,8 +1,8 @@
-module rdysetgo (A, B, C, D, blank, start, IncCounter, clk, reset);
+module rdysetgo (A, B, C, D, blank, ctime, start, IncCounter, clk, reset);
 	output reg [3:0] A, B, C, D, blank;
 	input start, clk, reset, IncCounter;
-	reg [1:0] ctime, ntime;
-	reg PrevIncCounter;
+	output [1:0] ctime
+	reg [1:0] ntime;
 	// clock and reset: non Blocking (<=)
 	always @ (posedge clk or posedge reset) begin // async
 		if (reset) begin
@@ -14,12 +14,8 @@ module rdysetgo (A, B, C, D, blank, start, IncCounter, clk, reset);
 		end
 	end
 	// find next state: Blocking (=)
-	always @ (start or IncCounter or ctime) begin 
-		if (PrevIncCounter != IncCounter)
-		begin
-			ntime = ntime + 1;
-		end
-		PrevIncCounter = IncCounter;
+	always @ (posedge IncCounter or negedge IncCounter) begin 
+		if (start) ntime <= ctime + 1;
 	end
 	
 	always @ (start or ctime) begin
