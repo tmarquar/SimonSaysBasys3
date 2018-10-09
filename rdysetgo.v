@@ -16,6 +16,7 @@ module rdysetgo (A, B, C, D, blank, ctime, start, IncCounter, clk, reset);
 	// find next state: Blocking (=)
 	always @ (posedge IncCounter or negedge IncCounter) begin 
 		if (start) ntime <= ctime + 1;
+		else ntime <= 2'b00;
 	end
 	
 	always @ (start or ctime) begin
