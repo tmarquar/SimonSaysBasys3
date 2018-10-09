@@ -13,7 +13,7 @@ module rdysetgoTest(Go, an, seg, clk, reset );
 	
 	ClockDivide CD(IncCounter, clk, reset);
 	
-	rdysetgo 	BC(A, B, C, D, blank, , Go, IncCounter, clk, reset);
+	rdysetgo 	BC(A, B, C, D, blank, Go, IncCounter, reset);
 	
 	Mux4Machine MM(HexVal,an,A,B,C,D,clk,reset,blank);
 	

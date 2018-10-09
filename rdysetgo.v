@@ -1,10 +1,9 @@
-module rdysetgo (A, B, C, D, blank, ctime, start, IncCounter, clk, reset);
+module rdysetgo (A, B, C, D, blank, start, clk, reset);
 	output reg [3:0] A, B, C, D, blank;
-	input start, clk, reset, IncCounter;
-	output reg [1:0] ctime;
+	input start, clk, reset;
+	reg [1:0] ctime;
 	
-	reg [1:0] ntime;
-	always @ (posedge IncCounter or posedge reset) begin  
+	always @ (posedge clk or posedge reset) begin  
 	       if (reset)
 	           ctime <= 0;	      
 	       else if (start)
