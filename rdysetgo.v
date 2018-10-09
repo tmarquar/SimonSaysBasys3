@@ -1,7 +1,7 @@
 module rdysetgo (A, B, C, D, blank, ctime, start, IncCounter, clk, reset);
 	output reg [3:0] A, B, C, D, blank;
 	input start, clk, reset, IncCounter;
-	output [1:0] ctime
+	output reg [1:0] ctime
 	reg [1:0] ntime;
 	// clock and reset: non Blocking (<=)
 	always @ (posedge clk or posedge reset) begin // async
