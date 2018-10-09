@@ -4,32 +4,22 @@ module rdysetgo (A, B, C, D, blank, ctime, start, IncCounter, clk, reset);
 	output reg [1:0] ctime;
 	
 	reg [1:0] ntime;
-	//reg PInkCounter;
-	// clock and reset: non Blocking (<=)
-	always @ (posedge clk) begin 
-		if (reset) begin
-			ctime <= 2'b00;
-			//PInkCounter <= IncCounter;
-		end
-		else 
-		begin
-			ctime <= ntime;
-		end
-	end
-	
-	always @ (posedge IncCounter ) begin 
-	   if (start)
-	    begin
-		  ntime <= ctime + 1;
-	    end
-	    else ntime <= 2'b00;
-	    
+	always @ (posedge IncCounter or posedge reset) begin  
+	       if (reset)
+	           ctime <= 0;	      
+	       else if (start)
+		       ctime <= ctime + 1;
+	       else ctime <= 2'b00;
 	end
 	
 	always @ (start or ctime) begin
 		case(ctime) 
 		2'b00: begin
-			blank = 4'b1111;
+			A = 4'b0000;
+            B = 4'b0000;
+            C = 4'b0000;
+            D = 4'b0000;
+            blank = 4'b0000;
 		end		
 		2'b01: begin
 			A = 4'b0; 
