@@ -1,61 +1,97 @@
-module ColorMaster(Colors, PlayerSelection, IncCounter, Go, CurrentColor, Score, clk, reset);
-	output reg [1:0] CurrentColor, Score;
+module ColorMaster(Colors, IncCounter, PlayerInput, rdyGo, SetColors, ColorOut, ScoreOut, clk, reset);
+	output reg SetColors, rdyGo;
+	output reg [1:0] ColorOut, ScoreOut;
 	input [31:0] Colors;
-	input [2:0] PlayerSelection;
-	input clk, reset, IncCounter, Go; 
-	reg [5:0] level; // 2^6 = 32 total colors
-	reg [1:0] NextColor, NextScore;
-	reg [1:0] PlayerColor;
-	reg [2:0] timeout; 
-	reg [5:0] numColors; // threshold
-	// (Score) 
-	// 00 waiting
-	// 01 right
-	// 10 wrong
-	// 11 timeout
+	input [2:0] PlayerInput;
+	input clk, reset
+	reg DisplaySequence;
+	reg [5:0] CurrentEnd, CurrentColor;
+	reg [1:0] tempScoreOut;
+	reg Delay[1:0];
+	
 	
 	// clock and reset: non Blocking (<=)
-	always @ (posedge clk or posedge reset) begin // async
-		if (reset) 
+	always @ (posedge clk) begin // async
+		if (!reset) 
 		begin
-			Score <= 2'b00;
-			timeout <= 3'b000;
-			level <= 6'b000_001;
-			numColors <= 6'b000_001;
-		end
-		else 
+			SetColors <= 0;
+			CurrentEnd <= 1;
+			CurrentColor <= 1;
+			DisplaySequence <= 1;
+			Delay <= 0;
+		end	
+		else
 		begin
-			Score <= NextScore;
+			ColorOut <= {Colors[CurrentColor], Colors[CurrentColor-1]};
+			SetColors <= 1;
 		end
 	end
 	// find next state: Blocking (=)
-	always @ (PlayerSelection or timeout) begin 
-		if (PlayerSelection[2])
+	always @ (posedge IncCounter) begin 
+		if (DisplaySequence && Delay != 2'b11)
+			delay <= delay + 1;
+			
+		if (DisplaySequence && Delay == 2'b11)
 		begin
-			if (PlayerSelection[1:0] == CurrentColor[1:0])
+			if (CurrentColor >= CurrentEnd)
 			begin
-				NextScore = 2'b01;
-				level = level + 2;
-				if (level > numColors)
+				CurrentColor <= 1;
+				DisplaySequence <=0;
+				rdyGo <= 1;
+			end
+			else 
+			begin
+				
+				CurrentColor <= CurrentColor + 2;
+			end
+		end
+		
+	end
+	
+	always @(PlayerInput) begin
+		if (!DisplaySequence)
+		begin
+			rdyGo = 0;
+			if (PlayerInput[2])
+			begin
+				ScoreOut = tempScoreOut;
+				tempScoreOut = 2'b00;
+				if (ScoreOut == 2'b01)
 				begin
-					level = 6'b000_001;
-					numColors = numColors + 2;
+					if (CurrentColor >= CurrentEnd)
+					begin
+						CurrentEnd = CurrentEnd + 2;
+						CurrentColor = 1;
+						Delay = 2'b00; 
+						DisplaySequence = 1; // Won't we want a small delay?
+					end
+					else 
+					begin
+						CurrentColor = CurrentColor + 2;
+					end
 				end
+				else 
+				begin
+					CurrentEnd = 1;
+					CurrentColor = 1;
+					//DisplaySequence = 0;
+				end
+				
 			end
 			else
 			begin
-				NextScore = 2'b10;
+				ColorOut = PlayerInput[1:0];
+				if (PlayerInput[1:0] == {Colors[CurrentColor], Colors[CurrentColor-1]})
+				begin
+					tempScoreOut = 2'b01;
+				end
+				else 
+				begin
+					tempScoreOut = 2'b10;
+				end
 			end
 		end
-		if (timeout == 3'b111) NextScore = 2'b11; 
+		//ScoreOut = 
 	end
-	
-	always @ (posedge IncCounter or negedge IncCounter) begin 
-		if (Go) timeout <= timeout + 1;
-		else timeout <= 3'b0;
-	end
-	
-	assign CurrentColor = Colors[level:level-1];
-	
 	
 endmodule
