@@ -3,7 +3,8 @@
 
 
 module rdysetgoTest(Go, an, seg, clk, reset );
-	output [3:0] an, seg;
+	output [3:0] an;
+	output [0:6] seg;
 	input clk, reset, Go;
 	
 	wire IncCounter;
@@ -18,4 +19,5 @@ module rdysetgoTest(Go, an, seg, clk, reset );
 	Mux4Machine MM(HexVal,an,A,B,C,D,clk,reset,blank);
 	
 	Hex27Seg 	HS(seg,HexVal);
+	
 endmodule

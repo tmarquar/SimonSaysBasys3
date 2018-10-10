@@ -3,29 +3,26 @@ module ClockDivide(IncCounter, clk, reset);
 	input clk, reset;
 	
 	reg [26:0] Count, nCount;
-	parameter [26:0] oneSecond = 500000;
 	// clock and reset: non Blocking (<=)
-	always @ (posedge clk or posedge reset) begin // async
-		if (reset) 
-		begin 
-			IncCounter <= 0; 
-			Count <= 0; 
-		end
+	always @ (posedge clk) begin 
+		if (reset) Count <= 0;
 		else Count <= nCount;
+		
 	end
 	// find next state: Blocking (=)
 	always @ (Count) begin 
-		if (Count == oneSecond) 
+		if (Count == 100_000_000) 
 		begin 
 			nCount = 0;
-			IncCounter = ~IncCounter;
+			IncCounter = 1;
 		end
 		else
 		begin
 			nCount = Count + 1;
-			
+			IncCounter = 0;
 		end
 	end
 	
 	
+        
 endmodule
