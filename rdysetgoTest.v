@@ -2,10 +2,11 @@
 // top-level module for rdysetgoTest
 
 
-module rdysetgoTest(Go, an, seg, clk, reset );
+module rdysetgoTest(Go, an, seg, clk, reset , correct);
 	output [3:0] an;
 	output [0:6] seg;
 	input clk, reset, Go;
+	input [1:0] correct;
 	
 	wire IncCounter;
 	wire [7:0] Count;
@@ -14,7 +15,7 @@ module rdysetgoTest(Go, an, seg, clk, reset );
 	
 	ClockDivide CD(IncCounter, clk, reset);
 	
-	rdysetgo 	BC(A, B, C, D, blank, Go, IncCounter, reset);
+	rdysetgo 	rdy(A, B, C, D, blank, correct, Go, clk, reset);
 	
 	Mux4Machine MM(HexVal,an,A,B,C,D,clk,reset,blank);
 	
